@@ -283,3 +283,21 @@ validate_hostname(const char *hostname, const int hostname_len)
 
     return 1;
 }
+
+int
+is_ipv6only(ss_addr_t *servers, size_t server_num, int ipv6first)
+{
+    int i;
+    for (i = 0; i < server_num; i++)
+    {
+        struct sockaddr_storage storage;
+        memset(&storage, 0, sizeof(struct sockaddr_storage));
+        if (get_sockaddr(servers[i].host, servers[i].port, &storage, 1, ipv6first) == -1) {
+            FATAL("failed to resolve the provided hostname");
+        }
+        if (storage.ss_family != AF_INET6) {
+            return 0;
+        }
+    }
+    return 1;
+}
